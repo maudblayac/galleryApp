@@ -2,14 +2,11 @@ console.log('📸 galleryApp')
 
 // DOM 
 const monImage = document.querySelector('#monImage')
-const [btnPrev,btnNext] = document.querySelectorAll('div.buttons-container > button')
+const [btnPrev,btnPlay,btnNext] = document.querySelectorAll('div.buttons-container > button')
+const thumbnailsParent = document.querySelector('.thumbnails-container')
 const IMAGES_FOLDER = './static/img/wide/'
-const IMAGESthumbnails = './static/img/thumbnails/'
-const thumbnails  = document.querySelector('.thumbnails-container')
-
+const THUMB_FOLDER  = './static/img/thumbnails/'
 // DataSet 
-let compteur = 0
-
 const images = [
 	"gaby1.jpg",
 	"gaby2.jpg",
@@ -20,56 +17,73 @@ const images = [
 	"jerusalem.jpg",
 	"jocelyn.jpg",
 	"lost.jpg",
-	"sifnos.jpg" 
+	"sifnos.jpg" // idx 9
 ]
 
-// IMAGESthumbnails
-images.forEach(function(slide, index) {
-    let div = document.createElement('div');
-    thumbnails.appendChild(div);
+let compteur = 0
+let maxIndex = images.length-1
 
-    let img = document.createElement('img');
-    img.src = IMAGESthumbnails + slide;
-    div.appendChild(img);
-
-    div.addEventListener('click', function() {
-        // Mettre à jour l'image principale via le click 
-        monImage.src = IMAGES_FOLDER + images[index];
-        compteur = index;
-    });
-});
-// nextImage
+// ?? quel est la valeur max de mon compteur ? 
 
 const nextImage = ()=>{
-	
-
-	if(compteur<images.length-1){
-		compteur++
-	}else{
-		compteur=0
-	}
-
+	compteur<maxIndex?compteur++:compteur=0
 	// ici j'affiche l'image suivante
-	monImage.src = IMAGES_FOLDER+images[compteur]
+	updateImage()
 }
-
-// prevImage
-
 const prevImage = ()=>{
-	
 	if(compteur>0){
 		compteur--
 	}else{
-		compteur=images.length-1
+		compteur=maxIndex
 	}
 	// ici j'affiche l'image précédente
+	updateImage()
+}
+
+function updateImage(){
 	monImage.src = IMAGES_FOLDER+images[compteur]
+}
+
+let monInterval = 0
+
+function startDiaporama (){
+	if(monInterval){
+		clearInterval(monInterval)
+		btnPlay.textContent = '▶'
+		monInterval = 0
+	}else{
+		btnPlay.textContent = '⏸'
+		monInterval = setInterval(nextImage,5000)
+	}
+	
 }
 
 btnNext.addEventListener('click',nextImage)
 btnPrev.addEventListener('click',prevImage)
+btnPlay.addEventListener('click',startDiaporama)
 
 
 
+function createThumbnails(){
+
+	images.forEach((thumbnail,idx)=>{
+		const divTest      = document.createElement('div')
+		const thumbnailImg = document.createElement('img')
+		divTest.appendChild(thumbnailImg)
+		thumbnailImg.addEventListener('click',()=>{
+			console.log('thumbnail clické ',idx)
+			compteur = idx
+			updateImage()
+		})
+		thumbnailsParent.appendChild(divTest)
+		thumbnailImg.src=THUMB_FOLDER+thumbnail
+	})	
 
 
+	// addEventListener
+	// const allThumbnails = thumbnailsParent.querySelectorAll('div > img')
+	// console.log(allThumbnails)
+
+
+}
+createThumbnails()
